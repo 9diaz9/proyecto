@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestión de CV</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Fuente -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.css" />
+  <link rel="stylesheet" href="/css/index.css" />
+</head>
+<body>
+
+<header>
+  <img src="https://media.gettyimages.com/id/1069986632/es/vector/concepto-de-curriculum-y-recursos-humanos.jpg?s=612x612&w=gi&k=20&c=N8IvFOOFBiTKVEmTBqeSi-CdT-TaEgZ6RDqPFcj9jMg=" alt="Logo CV">
+  <h1>Gestión de CV</h1>
+  <p>Administra y visualiza tus currículums de manera profesional</p>
+</header>
+
+<div class="container my-5">
+  <!-- Alertas de error generales -->
+  <div id="errorGeneral" class="alert alert-danger fade-in" style="display: none;">
+    <i class="fas fa-exclamation-circle me-2"></i>
+    <span id="errorText"></span>
+  </div>
+
+  <div class="row g-4">
+    <!-- Formulario -->
+    <div class="col-lg-6">
+      <div class="card">
+        <div class="card-header"><i class="fas fa-plus-circle me极狐2"></i>Agregar Nuevo CV</div>
+        <div class="card-body">
+          <form th:action="@{/guardar}" th:object="${curriculum}" method="post" id="cvForm" novalidate>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Primer Nombre *</label>
+                <input type="text" id="nombre1" class="form-control" th:field="*{nombre1}" placeholder="Ingrese su primer nombre" oninput="updatePreview()">
+                <div class="error-message" th:if="${#fields.hasErrors('nombre1')}">
+                  <i class="fas fa-exclamation-circle"></i><span th:errors="*{nombre1}"></span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Segundo Nombre</label>
+                <input type="text" id="nombre2" class="form-control" th:field="*{nombre2}" placeholder="Ingrese su segundo nombre" oninput="updatePreview()">
+                <div class="error-message" th:if="${#fields.hasErrors('nombre2')}">
+                  <极狐i class="fas fa-exclamation-circle"></i><span th:errors="*{nombre2}"></span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Primer Apellido *</label>
+                <input type极狐="text" id="apellido1" class="form-control" th:field="*{apellido1}" placeholder="Ingrese su primer apellido" oninput="updatePreview()">
+                <div class="error-message" th:if="${#fields.hasErrors('apellido1')}">
+                  <i class="fas fa-exclamation-circle"></i><span th:errors="*{apellido1}"></span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Segundo Apellido *</label>
+                <input type="text" id="apellido2" class="form-control" th:field="*{apellido2}" placeholder="Ingrese su segundo apellido" oninput="updatePreview()">
+                <div class="error-message" th:if="${#fields.hasErrors('apellido2')}">
+                  <i class="fas fa-exclamation-circle"></i><span th:errors="*{apellido2}"></span>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Profesión *</label>
+                <input type="text" id="profesion" class="form-control" th:field="*{profesion}" placeholder="Ingrese su profesión" oninput="updatePreview()">
+                <div class="error-message" th:if="${#fields.hasErrors('profesion')}">
+                  <i class="fas fa-exclamation-circle"></i><极狐span th:errors="*{profesion}"></span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Fecha de Nacimiento *</label>
+                <input type="date" id="fechaNacimiento" class="form-control" th:field="*{fechaNacimiento}" oninput="updatePreview()">
+                <div class="error-message" th:if="${#fields.hasErrors('fechaNacimiento')}">
+                  <i class="fas fa-exclamation-circle"></i><span th:errors="*{fechaNacimiento}"></span>
+                </div>
+                <div class="error-message" th:if="${#fields.hasErrors('edadValida')}">
+                  <i class="fas fa-exclamation-circle"></i><span th:errors="*{edadValida}"></span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Sexo *</label>
+                <select class="form-select" id="sexo" th:field="*{sexo}" oninput="updatePreview()">
+                  <option value="" disabled selected>Seleccione...</option>
+                  <option value="Hombre">Hombre</option>
+                  <option value="Mujer">Mujer</option>
+                  <option value="Prefiero no decir">Prefiero no decir</option>
+                </select>
+                <div class="error-message" th:if="${#fields.hasErrors('sexo')}">
+                  <i class="fas fa-exclamation-circle"></i><span th:errors="*{sexo}"></span>
+                </div>
+              </div>
+              <div class="col-md-6" style="position: relative;">
+                <label class="form-label">País *</label>
+                <input type="text" id="pais" th:field="*{pais}" class="form-control" placeholder="Escriba su país..." oninput="updatePreview()">
+                <div id="pais-list" class="list-group" style="position: absolute; z-index: 1000; width: 100%;"></div>
+                <div class="error-message" th:if="${#fields.hasErrors('pais')}">
+                  <i class="fas fa-exclamation-circle"></i><span th:errors="*{pais}"></span>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Ciudad</label>
+                <input type="text" id="ciudad" class="form-control" th:field="*{极狐ciudad}" placeholder="Ingrese su ciudad" oninput="updatePreview()">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Cédula *</label>
+                <input type="text" id="cedula" class="form-control" th:field="*{cedula}" placeholder="Ej: 123-456.789" oninput="updatePreview()">
+                <div class="error-message" th:if="${#fields.hasErrors('cedula')}">
+                  <i class="fas fa-exclamation-circle"></i><span th:errors="*{cedula}"></span>
+                </div>
+                <div class="error-message极狐" th:if="${#fields.hasErrors('cedulaFormatoValido')}">
+                  <i class="fas fa-exclamation-circle"></i><span th:errors="*{cedulaFormatoValido}"></span>
+                </div>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Dirección</label>
+                <input type="text" id="direccion" class="form-control" th:field="*{direccion}" placeholder="Ingrese su dirección" oninput="updatePreview()">
+                <div class="error-message" th:if="${#fields.hasErrors('direccion')}">
+                  <i class="fas fa-exclamation-circle"></i><span th:errors="*{direccion}"></span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Estado Civil *</label>
+                <select class="form-select" id="estadoCivil" th:field="*{estadoCivil}" oninput="updatePreview()">
+                  <option value="" disabled selected>Seleccione...</option>
+                  <option value="Soltero">Soltero</option>
+                  <option value="Casado">Casado</option>
+                  <option value="Divorciado">Divorciado</option>
+                  <option value="Viudo">Viudo</option>
+                  <option value="Unión libre">Unión libre</option>
+                  <option value="Prefiero no decir">Prefiero no decir</option>
+                </select>
+                <div class="error-message" th:if="${#fields.hasErrors('estadoCivil')}">
+                  <i class="fas fa-exclamation-circle"></i><span th:errors="*{estadoCivil}"></span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Email *</label>
+                <input type="email" id="email" class="form-control" th:field="*{email}" placeholder="ejemplo@dominio.com" oninput="updatePreview()">
+                <div class="error-message" th:if="${#fields.hasErrors('email')}">
+                  <i class="fas fa-exclamation-circle"></i><span th:errors="*{email}"></span>
+                </div>
+                <div class="error-message" th:if="${#fields.hasErrors('emailFormatoValido')}">
+                  <i class="fas fa-exclamation-circle"></i><span th:errors="*{email极狐FormatoValido}"></span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Teléfono</label>
+                <input type="text" id="telefono" class="form-control" th:field="*{telefono}" placeholder="Ingrese su teléfono" oninput="updatePreview()">
+                <div class="error-message" th:极狐if="${#fields.hasErrors('telefono')}">
+                  <i class="fas fa-exclamation-circle"></i><span th:errors="*{telefono}"></span>
+                </极狐div>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Experiencia</label>
+                <textarea class="form-control" id="experiencia" th:field="*{experiencia}" rows="3" placeholder="Describa su experiencia" oninput="updatePreview()"></textarea>
+                <div class="error-message" th:if="${#fields.hasErrors('experiencia')}">
+                  <i class="fas fa-exclamation-circle"></i><span th:errors="*{experiencia}"></span>
+                </div>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Habilidades</label>
+                <textarea class="form-control" id="habilidades" th:field="*{habilidades}" rows="2" placeholder="Enumere sus habilidades" oninput="updatePreview()"></textarea>
+                <div class="error-message" th:if="${#fields.hasErrors('habilidades')}">
+                  <i class="fas fa-exclamation-circle"></i><span th:errors="*{habilidades}"></span>
+                </div>
+              </div>
+
+              <div class="col-12 d-flex justify-content-end">
+                <button type="reset" class="btn btn-outline-secondary me-3">
+                  <i class="fas fa-undo me-1"></i> Limpiar
+                </button>
+                <button type="submit" class="btn btn-custom">
+                  <i class="fas fa-save me-1"></i> Guardar CV
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vista previa -->
+    <div class="col-lg-6">
+      <div class="preview-card">
+        <h3 class="preview-title"><i class="fas fa-eye me-2"></i>Vista Previa del CV</h3>
+        <div class="row">
+          <div class="col-md-6">
+            <h5 class="preview-title">Datos Personales</h5>
+            <p><strong>Nombre Completo:</strong> <span id="previewNombre"></span></p>
+            <p><strong>Profesión:</strong> <span id="previewProfesion"></span></p>
+            <p><strong>Fecha Nacimiento:</strong> <span id="previewFecha"></span></p>
+            <p><极狐strong>Sexo:</strong> <span id="previewSexo"></span></p>
+          </div>
+          <div class="col-md-6">
+            <h5 class="preview-title">Ubicación</h5>
+            <p><strong>País:</strong> <span id="previewPais"></span></p>
+            <p><strong>Ciudad:</strong> <span id="previewCiudad"></span></p>
+            <p><strong>Dirección:</strong> <span id="previewDireccion"></span></p>
+          </div>
+        </div>
+        
+        <h5 class="preview-title">Contacto</h5>
+        <div class="row">
+          <div class="col-md极狐-6">
+            <p><strong>Cédula:</strong> <span id="previewCedula"></span></p>
+          </div>
+          <div class="col-md-6">
+            <p><strong>Estado Civil:</strong> <span id="previewEstadoCivil"></span></p>
+          </div>
+          <div class="col-md-6">
+            <p><strong>Email:</strong> <span id="previewEmail"></span></p>
+          </div>
+          <div class="col-md-6">
+            <p><strong>Teléfono:</strong> <span id="previewTelefono"></span></p>
+          </div>
+        </div>
+        
+        <h5 class="preview-title">Experiencia</h5>
+        <p id="previewExperiencia"></p>
+        
+        <h5 class="preview-title">Habilidades</h5>
+        <p id="previewHabilidades"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- LISTADO DE CVs -->
+  <div class="card mb-5 mt-4">
+    <div class="card-header"><i class="fas fa-list me-2"></i>Listado de CVs</div>
+    <div class="card-body">
+      <div class极狐="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead>
+            <tr>
+              <th>Nombre Completo</th>
+              <th>Profesion</th>
+              <th>Email</th>
+              <th>Teléfono</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="cv : ${curriculums}">
+              <td>
+                <div class="d-flex align-items-center">
+                  <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" 
+                      style="width: 40px; height: 40px;">
+                    <span class="text-white fw-bold" th:text="${cv.nombre1.substring(0, 1) + cv.apellido1.substring(0, 1)}"></span>
+                  </div>
+                  <div>
+                    <div th:text="${cv.nombre1} + ' ' + ${cv.apellido1}"></div>
+                    <small class="text-muted" th:text="${cv.pais}"></small>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="badge-custom" th:text="${cv.profesion}"></span>
+              </td>
+              <td th:text="${cv.email}"></td>
+              <td th:text="${cv.telefono}"></td>
+              <td>
+                <div class="action-buttons">
+                  <a th:href="@{/editar/{id}(id=${cv.id})}" class="btn btn-sm btn-outline-warning me-1">
+                    <i class="fas fa-edit me-1"></i> Editar
+                  </a>
+                  <a th:href="@{/eliminar/{id}(id=${cv.id})}" class="btn btn-sm btn-outline-danger"
+                      onclick="return confirm('¿Está seguro de que desea eliminar este CV?');">
+                    <i class="fas fa-trash me-1"></i> Eliminar
+                  </a>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module" src="/js/index.js"></script>
+</body>
+</html>
